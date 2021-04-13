@@ -1,6 +1,17 @@
-from typing import List, Dict, Union, Set, Optional, NoReturn, Any, Callable, Type
+from typing import (
+    List,
+    Dict,
+    Union,
+    Set,
+    Optional,
+    NoReturn,
+    Any,
+    Callable,
+    Type,
+    Tuple,
+)
 
-
+# TODO : check how to implement typehint for self
 class Sequence(object):
     """
     Define a
@@ -68,7 +79,22 @@ class Sequence(object):
                 f"Complement of {type(other)} object is undefined. Please provide a Sequence or string"
             )
 
-    # define grammar (allowed operations for objects of class Sequence) :
+    @property
+    def sequence(self):
+        return self._sequence
+
+    # TODO : show only part of the sequence
+    def __repr__(self):
+        return f"ARN Sequence({self.sequence})"
+
+    def __str__(self):
+        return self.sequence
+
+    def __len__(self):
+        return len(self.sequence)
+
+    def __iter__(self):
+        return iter(self.sequence)
 
     def __eq__(self, other):
         if not isinstance(other, Sequence):
@@ -76,32 +102,22 @@ class Sequence(object):
 
         return self._sequence == other._sequence
 
-
-    def motifSearch(self, other, th):
+    def motif_search(self, other: str, th: int, unique: bool = False) -> List[str]:
         """Search for common motifs between the two ARN and store them in a list"""
-        l_motif=[]
+        if isinstance(other, Sequence):
+            other = other.sequence
+        elif not isinstance(other, str):
+            raise TypeError(
+                f"argument other is of type {type(other)}. Please provide a string or Sequence"
+            )
 
-        for i in range(len(self._sequence)-th):
-            if self._sequence[i:i+th] in other:
-                l_motif.append(self._sequence[i:i+th])
+        l_motif: List[str] = []
 
-        return l_motif, len(l_motif)
+        for i in range(len(self._sequence) - th):
+            if self._sequence[i : i + th] in other:
+                l_motif.append(self._sequence[i : i + th])
 
+        if unique:
+            l_motif = list(set(l_motif))
 
-    def count_occurences(self, l_motif):
-        """Create a dictionnary with the numbre of occurences of each motif"""
-        d_occ={}
-
-        for i in l_motif:
-            occ = 0
-            for j in l_motif:
-                if i == j:
-                    occ+=1
-                    d_occ.update({i : occ})
-
-        return d_occ
-
-
-
-
-
+        return l_motif
