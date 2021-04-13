@@ -75,3 +75,33 @@ class Sequence(object):
             raise TypeError(f"Cannot compare Sequence to object of class {type(other)}")
 
         return self._sequence == other._sequence
+
+
+    def motifSearch(self, other, th):
+        """Search for common motifs between the two ARN and store them in a list"""
+        l_motif=[]
+
+        for i in range(len(self._sequence)-th):
+            if self._sequence[i:i+th] in other:
+                l_motif.append(self._sequence[i:i+th])
+
+        return l_motif, len(l_motif)
+
+
+    def count_occurences(self, l_motif):
+        """Create a dictionnary with the numbre of occurences of each motif"""
+        d_occ={}
+
+        for i in l_motif:
+            occ = 0
+            for j in l_motif:
+                if i == j:
+                    occ+=1
+                    d_occ.update({i : occ})
+
+        return d_occ
+
+
+
+
+
