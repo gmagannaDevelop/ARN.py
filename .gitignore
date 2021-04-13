@@ -1,3 +1,13 @@
+
+### Custom ignores
+
+.vscode
+.idea
+
+
+
+### PYTHON IGNORE TEMPLATE :
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
