@@ -28,6 +28,3 @@ as the main dependency tracking system.
 The code is simultaneously developed and 
 tested both on `Pop!_OS 20.04 LTS x86_64` (Ubuntu-based linux system) and
 `Windows 10`.
-
-
-
