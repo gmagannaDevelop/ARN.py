@@ -113,8 +113,9 @@ class Sequence(object):
 
         l_motif: List[str] = []
 
-        for i in range(len(self._sequence) - th):
-            if self._sequence[i : i + th] in other:
+        for i in range(len(self._sequence)):
+            motif: str = self._sequence[i : i + th]
+            if motif in other and len(motif) == th:
                 l_motif.append(self._sequence[i : i + th])
 
         if unique:
