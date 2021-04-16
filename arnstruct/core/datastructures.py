@@ -56,7 +56,10 @@ class Queue(object):
 
     def dequeue(self) -> Any:
         """ """
-        return self._items.pop()
+        if self.is_empty():
+            raise IndexError("cannot dequeue from empty Queue")
+        else:
+            return self._items.pop()
 
     def peek(self) -> Any:
         """ """
@@ -93,13 +96,17 @@ class Stack(object):
         """ Shallow copy of the list of elements in the Stack."""
         return self._items.copy()
 
-    def push(self, item):
+    def push(self, *args):
         """ """
-        self._items.append(item)
+        for item in args:
+            self._items.append(item)
 
     def pop(self):
         """ """
-        return self._items.pop()
+        if self.is_empty():
+            raise IndexError("Cannot pop from empty Stack.")
+        else:
+            return self._items.pop()
 
     def peek(self):
         """ """
@@ -112,6 +119,16 @@ class Stack(object):
 
 class Node(object):
     """ """
+
+    @staticmethod
+    def __type_error(x: Any) -> str:
+        """ """
+        return "\n".join(
+            [
+                f"Cannot add object `x` of type {type(x)} to a Tree.",
+                f"Try adding `Node(x)` instead.",
+            ]
+        )
 
     def __init__(self, content: Optional[Any] = None):
         self.__uuid = hex(id(self))
@@ -152,14 +169,20 @@ class Node(object):
         else:
             return None
 
+    def add_child(self, child: "Node") -> NoReturn:
+        """ """
+        if not isinstance(child, Node):
+            raise TypeError(self.__type_error(child))
+
+        if not self._first_child:
+            self._first_child = child
+        else:
+            self._first_child.add_sibling(child)
+
     def add_sibling(self, node: "Node") -> NoReturn:
         """ """
         if not isinstance(node, Node):
-            err_lines: List[str] = [
-                f"Cannot add object `x` of type {type(node)} to a Tree.",
-                f"Try calling `add_sibling(Node(x))`",
-            ]
-            raise TypeError("\n".join(err_lines))
+            raise TypeError(self.__type_error(node))
         else:
             self._siblings.append(node)
 
@@ -176,3 +199,54 @@ class Node(object):
 
 class Tree(object):
     """ """
+
+    @staticmethod
+    def from_parentheses(parentheses: str):
+        """ """
+        stack: Stack = Stack()
+        root: Node = Node()
+
+        stack.push(root)
+
+        for char in parentheses:
+            if char == "(":
+                new_node = Node()
+                parent = stack.pop()
+                parent.add_child(new_node)
+                stack.push(parent)
+                stack.push(new_node)
+            elif char == "-":
+                new_node = Node()
+                parent = stack.pop()
+                parent.add_child(new_node)
+                stack.push(parent)
+            else:
+                stack.pop()
+
+        return stack.peek()
+
+    @staticmethod
+    def from_parentheses_and_sequence(parentheses: str, sequence: str):
+        """ """
+        stack: Stack = Stack()
+        root: Node = Node()
+
+        stack.push(root)
+
+        # TODO : verify edge cases :
+        for char, base in zip(parentheses, sequence):
+            if char == "(":
+                new_node = Node(base)
+                parent = stack.pop()
+                parent.add_child(new_node)
+                stack.push(parent)
+                stack.push(new_node)
+            elif char == "-":
+                new_node = Node(base)
+                parent = stack.pop()
+                parent.add_child(new_node)
+                stack.push(parent)
+            else:
+                stack.pop()
+
+        return stack.peek()
