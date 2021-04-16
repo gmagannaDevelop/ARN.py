@@ -12,11 +12,62 @@ from typing import (
     Iterable,
 )
 
+__all__ = ["Queue", "Node", "Tree"]
+
+
+class Queue(object):
+    """
+    Basic Queue implemented on a list.
+
+    The complexity of Queue operations is :
+
+    * enqueue O(n)
+    * dequeue O(1)
+    * peek    O(1)
+    """
+
+    def __init__(self):
+        self._items: List[Any] = []
+
+    def __repr__(self):
+        return f"Queue ({self._items})"
+
+    def __len__(self):
+        return self.size
+
+    @property
+    def items(self) -> List[Any]:
+        """ Shallow copy of the list of elements in the Queue."""
+        return self._items.copy()
+
+    @property
+    def size(self) -> int:
+        """ """
+        return len(self._items)
+
+    def is_empty(self) -> bool:
+        """ """
+        return len(self._items) == 0
+
+    def enqueue(self, *args) -> NoReturn:
+        """ """
+        for item in args:
+            self._items.insert(0, item)
+
+    def dequeue(self) -> Any:
+        """ """
+        return self._items.pop()
+
+    def peek(self) -> Any:
+        """ """
+        return self.items[-1]
+
 
 class Node(object):
     """ """
 
     def __init__(self, content: Optional[Any] = None):
+        self.__uuid = hex(id(self))
         self._content: Any = content
         self._first_child: Union[Node, None] = None
         self._siblings: List[Node] = []
@@ -28,6 +79,10 @@ class Node(object):
         return f"{self.content}"
 
     @property
+    def id(self):
+        return self.__uuid
+
+    @property
     def content(self) -> Any:
         """  """
         return self._content
@@ -35,7 +90,7 @@ class Node(object):
     @property
     def siblings(self) -> List["Node"]:
         """ """
-        return self._siblings
+        return self._siblings.copy()
 
     @property
     def first_child(self):
@@ -73,4 +128,6 @@ class Node(object):
 
 
 class Tree(object):
-    """"""
+    """ """
+
+    pass
