@@ -12,12 +12,12 @@ from typing import (
     Iterable,
 )
 
-__all__ = ["Queue", "Node", "Tree"]
+__all__ = ["Queue", "Stack", "Node", "Tree"]
 
 
 class Queue(object):
     """
-    Basic Queue implemented on a list.
+    Basic Queue implemented on a Python list.
 
     The complexity of Queue operations is :
 
@@ -30,7 +30,7 @@ class Queue(object):
         self._items: List[Any] = []
 
     def __repr__(self):
-        return f"Queue ({self._items})"
+        return f"Queue : {self._items}-> head"
 
     def __len__(self):
         return self.size
@@ -61,6 +61,53 @@ class Queue(object):
     def peek(self) -> Any:
         """ """
         return self.items[-1]
+
+
+class Stack(object):
+    """
+    Basic implementation of a Stack on a Python list().
+
+    The complexity of Stack operations is :
+
+    * push O(1)
+    * pop  O(1)
+    * peek O(1)
+    """
+
+    def __init__(self):
+        self._items = []
+
+    def __repr__(self):
+        return f"Stack : {self._items} -> head"
+
+    def __len__(self):
+        return self.size
+
+    @property
+    def size(self):
+        """ """
+        return len(self._items)
+
+    @property
+    def items(self) -> List[Any]:
+        """ Shallow copy of the list of elements in the Stack."""
+        return self._items.copy()
+
+    def push(self, item):
+        """ """
+        self._items.append(item)
+
+    def pop(self):
+        """ """
+        return self._items.pop()
+
+    def peek(self):
+        """ """
+        return self._items[-1]
+
+    def is_empty(self):
+        """ """
+        return len(self._items) == 0
 
 
 class Node(object):
@@ -129,5 +176,3 @@ class Node(object):
 
 class Tree(object):
     """ """
-
-    pass
