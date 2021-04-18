@@ -24,6 +24,7 @@ class Queue(object):
     * enqueue O(n)
     * dequeue O(1)
     * peek    O(1)
+    * empty   O(n)
     """
 
     def __init__(self):
@@ -34,6 +35,9 @@ class Queue(object):
 
     def __len__(self):
         return self.size
+
+    def __iter__(self):
+        return iter(reversed(self.items))
 
     @property
     def items(self) -> List[Any]:
@@ -61,6 +65,11 @@ class Queue(object):
         else:
             return self._items.pop()
 
+    def empty(self) -> NoReturn:
+        """ """
+        while not self.is_empty():
+            _ = self.dequeue()
+
     def peek(self) -> Any:
         """ """
         return self.items[-1]
@@ -72,9 +81,10 @@ class Stack(object):
 
     The complexity of Stack operations is :
 
-    * push O(1)
-    * pop  O(1)
-    * peek O(1)
+    * push  O(1)
+    * pop   O(1)
+    * peek  O(1)
+    * empty O(n)
     """
 
     def __init__(self):
@@ -85,6 +95,9 @@ class Stack(object):
 
     def __len__(self):
         return self.size
+
+    def __iter__(self):
+        return iter(reversed(self.items))
 
     @property
     def size(self):
@@ -138,6 +151,9 @@ class Node(object):
 
     def __repr__(self):
         return f"Node({self.content})"
+
+    def __bool__(self):
+        return bool(self.content)
 
     def __str__(self):
         return f"{self.content}"
@@ -200,8 +216,8 @@ class Node(object):
 class Tree(object):
     """ """
 
-    @staticmethod
-    def from_parentheses(parentheses: str):
+    @classmethod
+    def from_parentheses(cls, parentheses: str):
         """ """
         stack: Stack = Stack()
         root: Node = Node()
@@ -223,13 +239,15 @@ class Tree(object):
             else:
                 stack.pop()
 
-        return stack.peek()
+        return cls(stack.peek())
 
-    @staticmethod
-    def from_parentheses_and_sequence(parentheses: str, sequence: str):
+    @classmethod
+    def from_parentheses_and_sequence(cls, parentheses: str, sequence: str):
         """ """
         stack: Stack = Stack()
         root: Node = Node()
+        # stack to keep trace of opening and closing braces
+        balance_stack: Stack = Stack()
 
         stack.push(root)
 
@@ -249,4 +267,31 @@ class Tree(object):
             else:
                 stack.pop()
 
-        return stack.peek()
+        return cls(stack.peek())
+
+    def __init__(self, root: Node):
+        self._root = root
+
+    @property
+    def root(self):
+        return self._root
+
+    def breath_first_transversal(self):
+        queue: Queue = Queue()
+        queue.enqueue(self._root)
+        level_queue: Queue = Queue()
+
+        tree_map: Dict[int, Node] = {0: [self._root]}
+        level: int = 0
+
+        while not queue.is_empty():
+            current: Queue = queue.dequeue()
+            print(current.content, end="")
+            if current.children is not None:
+                level += 1
+                for child in current.children:
+                    queue.enqueue(child)
+                    level_queue.enqueue(child)
+
+                tree_map.update({level: level_queue.items})
+                level_queue.empty()
