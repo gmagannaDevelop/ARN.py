@@ -131,7 +131,10 @@ class Stack(object):
 
 
 class Node(object):
-    """ """
+    """
+    Note : len(Node) is particularly defined for nodes having a Queue
+    as content.
+    """
 
     @staticmethod
     def __type_error(x: Any) -> str:
@@ -157,6 +160,20 @@ class Node(object):
 
     def __str__(self):
         return f"{self.content}"
+
+    def __len__(self):
+        _iter_types = [Queue, Stack, list]
+        # check if we can get the length of contents :
+        _is_iterable = any(isinstance(self._content, i) for i in _iter_types)
+        if self._content is None:
+            # if there is no content
+            return 0
+        elif _is_iterable:
+            # if content is an iterable collection
+            return len(self._content)
+        else:
+            # if content is a single element
+            return 1
 
     @property
     def id(self):
@@ -254,7 +271,11 @@ class Tree(object):
         # TODO : verify edge cases :
         for char, base in zip(parentheses, sequence):
             if char == "(":
-                new_node = Node(base)
+                # new_node = Node(base)
+                new_node = Node(Queue())
+                new_node.content.enqueue(base)
+                # to be able to add the corresponding matching base
+                balance_stack.push(new_node)
                 parent = stack.pop()
                 parent.add_child(new_node)
                 stack.push(parent)
@@ -264,8 +285,14 @@ class Tree(object):
                 parent = stack.pop()
                 parent.add_child(new_node)
                 stack.push(parent)
-            else:
+            elif char == ")":
+                balance_stack.peek().content.enqueue(base)
+                balance_stack.pop()
                 stack.pop()
+            else:
+                raise ValueError(
+                    f"Parenthesised expression contains unknown character {char}"
+                )
 
         return cls(stack.peek())
 
