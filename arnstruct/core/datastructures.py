@@ -1,3 +1,8 @@
+"""
+    Core datastructures needed to represent 
+    the genreal tree spawned by secondary tRNA
+    structures.
+"""
 from typing import (
     List,
     Dict,
@@ -36,44 +41,51 @@ class Queue(object):
         return f"Queue : {self._items}-> head"
 
     def __len__(self):
+        """ Wrapper for self.size : number of elements in the queue."""
         return self.size
 
     def __iter__(self):
+        """Iterate over the elements of the queue, in the same
+        order as if queue.dequeue() was being called sequentially."""
         return iter(reversed(self.items))
 
     @property
     def items(self) -> List[Any]:
-        """ Shallow copy of the list of elements in the Queue."""
+        """ Shallow copy of the list of elements in the queue."""
         return self._items.copy()
 
     @property
     def size(self) -> int:
-        """ An integer representing the number of elements in the Queue. """
+        """ An integer representing the number of elements in the queue. """
         return len(self._items)
 
     def is_empty(self) -> bool:
-        """ """
+        """boolean, returns :
+        * True if the queue is empty (has zero elements)
+        * False otherwise
+        """
         return len(self._items) == 0
 
     def enqueue(self, *args) -> NoReturn:
-        """ """
+        """ Add one (or more) elements to the queue."""
         for item in args:
             self._items.insert(0, item)
 
     def dequeue(self) -> Any:
-        """ """
+        """Remove the next element in the queue if possible (the queue is not empty).
+        Raises IndexError() if called on an empty queue."""
         if self.is_empty():
             raise IndexError("cannot dequeue from empty Queue")
         else:
             return self._items.pop()
 
     def empty(self) -> NoReturn:
-        """ """
+        """ Empty the queue without returning the results. """
         while not self.is_empty():
             _ = self.dequeue()
 
     def peek(self) -> Any:
-        """ """
+        """ Returns a view at the first element in the queue, without removing it."""
         return self.items[-1]
 
 
@@ -96,23 +108,26 @@ class Stack(object):
         return f"Stack : {self._items} -> head"
 
     def __len__(self):
+        """ Wrapper for self.size : number of elements in the stack."""
         return self.size
 
     def __iter__(self):
+        """Iterate over the elements of the stack, in the same
+        order as if stack.pop() was being called sequentially."""
         return iter(reversed(self.items))
 
     @property
     def size(self):
-        """ """
+        """ An integer representing the number of elements in the stack. """
         return len(self._items)
 
     @property
     def items(self) -> List[Any]:
-        """ Shallow copy of the list of elements in the Stack."""
+        """ Shallow copy of the list of elements in the stack."""
         return self._items.copy()
 
     def push(self, *args):
-        """ """
+        """ Add one (or more) elements to the top of the stack. """
         for item in args:
             self._items.append(item)
 
@@ -124,16 +139,47 @@ class Stack(object):
             return self._items.pop()
 
     def peek(self):
-        """ """
+        """ Returns a view at the first element in the queue, without removing it."""
         return self._items[-1]
 
     def is_empty(self):
-        """ """
+        """boolean, returns :
+        * True if the stack is empty (has zero elements)
+        * False otherwise
+        """
         return len(self._items) == 0
 
 
 class Node(object):
     """
+    Node base class used to represent a general (rooted) tree.
+
+    A general tree is defined as a tree having nodes with an arbitrary'
+    number of children each.
+
+    Here we use a linked list implementation, where each node has a reference
+    to its first child, which contains a list of references to its siblings
+    (nodes found in the tree, at the same depth).
+
+    Example :
+
+                    root
+                /     |    \\
+                A     B     C
+                     / \\  
+                    D    E
+
+    is represented as :
+
+    root
+    |
+    first_child(A) -> [second_child(B), third_child(C)]
+                         |
+                       first_child(D) -> [second_child(E)]
+
+    Note :  magic methods are implemented for the implementation of the ARN
+    general tree but are not meant to be used by final users.
+
     Note : len(Node) is particularly defined for nodes having a Queue
     as content.
     """
@@ -163,6 +209,7 @@ class Node(object):
     def __str__(self):
         return f"{self.content}"
 
+    # TODO : remove as it is not used ?
     def __len__(self):
         _iter_types = [Queue, Stack, list]
         # check if we can get the length of contents :
@@ -179,33 +226,42 @@ class Node(object):
 
     @property
     def id(self):
+        """ A unique representation of the node, given by its memory address."""
         return self.__uuid
 
     @property
     def content(self) -> Any:
-        """  """
+        """ The content of the node."""
         return self._content
 
     @property
     def siblings(self) -> List["Node"]:
-        """ """
+        """ Return a shallow copy of the siblings of the node"""
         return self._siblings.copy()
 
     @property
     def first_child(self):
-        """ """
+        """First child of node, according to the chained
+        representation described in the main docstring."""
         return self._first_child
 
     @property
     def children(self):
-        """ """
+        """Return a list of the first child and all of its siblings,
+        which together represent all the children of the node."""
         if self.first_child is not None:
             return [self.first_child] + self.first_child.siblings
         else:
             return None
 
     def add_child(self, child: "Node") -> NoReturn:
-        """ """
+        """Add a child to a node. Given the chained implementation this
+        means modifying the `self._first_child` property for leaf nodes.
+        If the node is not a leaf, the node (param `child`) will be added
+        to the siblings of the first_child of the current node.
+
+        Raises TypeError if `child` is not an instance of Node.
+        """
         if not isinstance(child, Node):
             raise TypeError(self.__type_error(child))
 
@@ -215,24 +271,30 @@ class Node(object):
             self._first_child.add_sibling(child)
 
     def add_sibling(self, node: "Node") -> NoReturn:
-        """ """
+        """Add a sibling to the current node.
+
+        Raises TypeError if `node` is not an instance of Node.
+        """
         if not isinstance(node, Node):
             raise TypeError(self.__type_error(node))
         else:
             self._siblings.append(node)
 
     def add_siblings(self, *args) -> NoReturn:
-        """ """
+        """Add a sibling to the current node for each arg in args.
+
+        Raises TypeError if any of `args` is not an instance of Node.
+        """
         _are_nodes: List[bool] = [isinstance(arg, Node) for arg in args]
         # check that all siblings are nodes :
         if not all(_are_nodes):
-            raise TypeError(f"One (or more) argument(s) are not instances of Node.")
+            raise TypeError(f"One (or more) argument(s) are not instance(s) of Node.")
         else:
             for arg in args:
                 self.add_sibling(arg)
 
     def is_leaf(self):
-        """ """
+        """ Return True if the node has no children, False otherwise."""
         return True if self.children is None else False
 
     def content_is_iterable(self) -> bool:
@@ -249,7 +311,11 @@ class Node(object):
 
 
 class Tree(object):
-    """ """
+    """
+    General tree built from a WUSS-format parenthesised expression.
+
+    It represents the secondary structure of tRNA molecules.
+    """
 
     @classmethod
     def from_parentheses(cls, parentheses: str):
@@ -324,10 +390,12 @@ class Tree(object):
 
     @property
     def root(self):
+        """ Return a reference to the root of the tree. """
         return self._root
 
-    def breath_first_transversal(self):
-        """ """
+    # TODO : find a utility for this or remove it
+    def _breath_first_transversal(self):
+        """ DO NOT CALL, experimental. """
         queue: Queue = Queue()
         queue.enqueue(self._root)
         level_queue: Queue = Queue()
@@ -348,11 +416,14 @@ class Tree(object):
                 level_queue.empty()
 
     def __reset_elements(self):
-        """ """
+        """Private method to be called before and after a call to
+        self._depth_first_transversal()."""
         self.__elements = []
 
     def to_sequence(self) -> str:
-        """ """
+        """Rebuild the character sequence that generated the tree contentents.
+        The string is built by performing a `depth first transversal`
+        on a copy of the tree."""
         self.__reset_elements()
         self._depth_first_transversal(mode="sequence")
         sequence: str = "".join(self.__elements)
@@ -360,7 +431,9 @@ class Tree(object):
         return sequence
 
     def to_parentheses(self) -> str:
-        """ """
+        """Rebuild the parenthesised expression that generated the tree structure.
+        The string is built by performing a `depth first transversal`
+        on a copy of the tree."""
         self.__reset_elements()
         self._depth_first_transversal(mode="parenthesis")
         parentheses: str = "".join(self.__elements)
@@ -368,7 +441,7 @@ class Tree(object):
         return parentheses
 
     def to_wuss_format(self) -> str:
-        """ """
+        """ Wrapper for self.to_parentheses() """
         return self.to_parentheses()
 
     def _depth_first_transversal(
@@ -377,7 +450,14 @@ class Tree(object):
         node: Optional[Node] = None,
         pairs_stack: Optional[Stack] = None,
     ) -> NoReturn:
-        """ """
+        """Perform a depth-first transversal on a copy of the Tree.
+        This method needs to operate on a copy and not the tree itself because
+        modifies the content of nodes which represent base pairs in the structure.
+
+        This method will modify a private instance attribute self.__elements
+        which is used to rebuild the sequence and/or parenthesised expression
+        that the tree represents.
+        """
         _valid_modes: List[str] = ["sequence", "parenthesis"]
         if mode not in _valid_modes:
             raise ValueError(f"Unknown mode {mode}. Valid modes are : {_valid_modes}")
