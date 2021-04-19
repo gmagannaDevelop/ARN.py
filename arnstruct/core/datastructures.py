@@ -12,6 +12,8 @@ from typing import (
     Iterable,
 )
 
+import copy
+
 __all__ = ["Queue", "Stack", "Node", "Tree"]
 
 
@@ -156,7 +158,7 @@ class Node(object):
         return f"Node({self.content})"
 
     def __bool__(self):
-        return bool(self.content)
+        return True
 
     def __str__(self):
         return f"{self.content}"
@@ -229,6 +231,22 @@ class Node(object):
             for arg in args:
                 self.add_sibling(arg)
 
+    def is_leaf(self):
+        """ """
+        return True if self.children is None else False
+
+    def content_is_iterable(self) -> bool:
+        """ Check if the content of a node is iterable by duck-typing """
+        try:
+            _ = iter(self._content)
+            return True
+        except TypeError:
+            return False
+
+    def content_isinstance(self, cls) -> bool:
+        """ wrapper for isinstance(self._content, cls) """
+        return isinstance(self._content, cls)
+
 
 class Tree(object):
     """ """
@@ -298,12 +316,19 @@ class Tree(object):
 
     def __init__(self, root: Node):
         self._root = root
+        self.__elements: List[str] = []
+
+    def is_empty(self):
+        """Return True if there are no nodes other than the root
+        i.e. the root is a leaf (has no children)."""
+        return self._root.is_leaf()
 
     @property
     def root(self):
         return self._root
 
     def breath_first_transversal(self):
+        """ """
         queue: Queue = Queue()
         queue.enqueue(self._root)
         level_queue: Queue = Queue()
@@ -322,3 +347,33 @@ class Tree(object):
 
                 tree_map.update({level: level_queue.items})
                 level_queue.empty()
+
+    def reset_elements(self):
+        """ """
+        self.__elements = []
+
+    # TODO : define interface for this method, which should
+    # be private or at least protected
+    def depth_first_transversal(
+        self,
+        node: Optional[Node] = None,
+        pairs_stack: Optional[Stack] = None,
+    ):
+        """ """
+        node: Node = node or self.root
+        node = copy.deepcopy(node)
+        pairs_stack: Stack = pairs_stack or Stack()
+
+        print(node.content, sep=" ")
+        if node.content_isinstance(str):
+            self.__elements.append(node.content)
+        elif node.content_isinstance(Queue):
+            self.__elements.append(node.content.dequeue())
+            pairs_stack.push(node.content.dequeue())
+
+        if not node.is_leaf():
+            for child in node.children:
+                self.depth_first_transversal(child, pairs_stack)
+
+            if not pairs_stack.is_empty():
+                self.__elements.append(pairs_stack.pop())
