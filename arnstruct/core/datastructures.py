@@ -48,7 +48,7 @@ class Queue(object):
 
     @property
     def size(self) -> int:
-        """ """
+        """ An integer representing the number of elements in the Queue. """
         return len(self._items)
 
     def is_empty(self) -> bool:
@@ -289,7 +289,6 @@ class Tree(object):
         # TODO : verify edge cases :
         for char, base in zip(parentheses, sequence):
             if char == "(":
-                # new_node = Node(base)
                 new_node = Node(Queue())
                 new_node.content.enqueue(base)
                 # to be able to add the corresponding matching base
@@ -348,32 +347,66 @@ class Tree(object):
                 tree_map.update({level: level_queue.items})
                 level_queue.empty()
 
-    def reset_elements(self):
+    def __reset_elements(self):
         """ """
         self.__elements = []
 
-    # TODO : define interface for this method, which should
-    # be private or at least protected
-    def depth_first_transversal(
+    def to_sequence(self) -> str:
+        """ """
+        self.__reset_elements()
+        self._depth_first_transversal(mode="sequence")
+        sequence: str = "".join(self.__elements)
+        self.__reset_elements()
+        return sequence
+
+    def to_parentheses(self) -> str:
+        """ """
+        self.__reset_elements()
+        self._depth_first_transversal(mode="parenthesis")
+        parentheses: str = "".join(self.__elements)
+        self.__reset_elements()
+        return parentheses
+
+    def to_wuss_format(self) -> str:
+        """ """
+        return self.to_parentheses()
+
+    def _depth_first_transversal(
         self,
+        mode: str,
         node: Optional[Node] = None,
         pairs_stack: Optional[Stack] = None,
-    ):
+    ) -> NoReturn:
         """ """
+        _valid_modes: List[str] = ["sequence", "parenthesis"]
+        if mode not in _valid_modes:
+            raise ValueError(f"Unknown mode {mode}. Valid modes are : {_valid_modes}")
+
         node: Node = node or self.root
         node = copy.deepcopy(node)
         pairs_stack: Stack = pairs_stack or Stack()
 
-        print(node.content, sep=" ")
         if node.content_isinstance(str):
-            self.__elements.append(node.content)
+            if mode == _valid_modes[0]:
+                self.__elements.append(node.content)
+            else:
+                self.__elements.append("-")
+
         elif node.content_isinstance(Queue):
-            self.__elements.append(node.content.dequeue())
-            pairs_stack.push(node.content.dequeue())
+            if mode == _valid_modes[0]:
+                self.__elements.append(node.content.dequeue())
+                pairs_stack.push(node.content.dequeue())
+            else:
+                self.__elements.append("(")
+                pairs_stack.push(None)
 
         if not node.is_leaf():
             for child in node.children:
-                self.depth_first_transversal(child, pairs_stack)
+                self._depth_first_transversal(mode, child, pairs_stack)
 
             if not pairs_stack.is_empty():
-                self.__elements.append(pairs_stack.pop())
+                if mode == _valid_modes[0]:
+                    self.__elements.append(pairs_stack.pop())
+                else:
+                    self.__elements.append(")")
+                    pairs_stack.pop()
