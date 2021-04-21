@@ -1,10 +1,15 @@
 
 ### Custom ignores
 
+# editor settings :
 .vscode
 .idea
 
+# vim swap files :
+**/*.swp
 
+# java examples :
+**/*.java
 
 ### PYTHON IGNORE TEMPLATE :
 

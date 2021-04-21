@@ -102,7 +102,7 @@ class Sequence(object):
 
         return self._sequence == other._sequence
 
-    def motif_search(self, other: str, th: int, unique: bool = False, ) -> List[str]:
+    def motif_search(self, other: str, th: int, unique: bool = False) -> List[str]:
         """Search for common motifs between the two ARN and store them in a list"""
         if isinstance(other, Sequence):
             other = other.sequence
@@ -114,7 +114,8 @@ class Sequence(object):
         l_motif: List[str] = []
 
         for i in range(len(self._sequence)):
-            if self._sequence[i : i + th] in other:
+            motif: str = self._sequence[i : i + th]
+            if motif in other and len(motif) == th:
                 l_motif.append(self._sequence[i : i + th])
 
         if unique:
