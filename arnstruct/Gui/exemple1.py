@@ -9,11 +9,9 @@ sg.theme('DarkTeal2')   # Add a touch of color
 frame_seq1 = [
     [sg.Text('Importer un fichier'), sg.FileBrowse('Importer')],
     [sg.Text("Entrer manuellement sa séquence nucléotidique")], [sg.InputText(key='-SEQNT1-')],
-             [sg.Button('Valider', key='-SUB_SEQ1-')],
-
 
     [sg.Text("ou", justification='center')],
-    [sg.Text("Entrer manuellement sa structure secondaire")], [sg.InputText(key="STRUCT1")],
+    [sg.Text("Entrer manuellement sa structure secondaire")], [sg.InputText(key="-STRUCT1-")],
     [sg.Text('Structure 1')]
     ]
 
@@ -24,7 +22,7 @@ frame_seq2 = [
 
 
         [sg.Text("ou", justification='center')],
-        [sg.Text("Entrer manuellement sa structure secondaire")], [sg.InputText(key="STRUCT2")],
+        [sg.Text("Entrer manuellement sa structure secondaire")], [sg.InputText(key="-STRUCT2-")],
         [sg.Text('Structure 2')],
 
 ]
@@ -50,17 +48,20 @@ while True:
         seq1 = Sequence(values['-SEQNT1-'])
         seq2 = Sequence(values['-SEQNT2-'])
 
-        struct1 = Structure(values("STRUCT1"))
-        struct2 = Structure(values("STRUCT2"))
+        struct1 = Structure(values["-STRUCT1-"])
+        struct2 = Structure(values["-STRUCT2-"])
 
 
         try:
             th_str = values['MOTIFSIZE']
-            th = int(th_str)
-            motifs_seq = seq1.motifSearch(seq2._sequence, th)
-            print("Motifs communs de taille %d"%th, motifs_seq)
+            th_seq = int(th_str)
+            motifs_seq = seq1.motif_search(seq2, th_seq)
+            print("Motifs communs de taille %d"%th_seq, motifs_seq)
 
-            motifs_struct = struct1.motif_search_struct(struct2._struct)
+            th_struct = int(th_str)
+            motifs_struct = struct1.motif_search_struct(struct2, th_struct)
+            print("Structure commune de taille %d"%th_struct, motifs_struct)
+
 
         except ValueError as e:
             print(f"Nan mais on a dit une taille !")
