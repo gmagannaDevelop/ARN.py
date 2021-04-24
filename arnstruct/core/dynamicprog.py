@@ -7,8 +7,8 @@ class RNAStruct(Sequence):
 
     def __init__(self, sequence: str):
         super().__init__(sequence)
-        for i in self.sequence:
-            print(self._Sequence__complement(i))
+        # for i in self.sequence:
+        #    print(self._Sequence__complement(i))
         n: int = len(self.sequence)
         self._matrix = np.zeros((n, n))
 
