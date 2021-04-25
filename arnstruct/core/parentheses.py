@@ -75,6 +75,9 @@ class Parentheses(str):
             return Parentheses.to_parentheses(expr)
 
     def __init__(self, expression: str):
+        raise NotImplementedError(
+            "This class was not meant to be instantiated. Use Parentheses.validate_and_convert() instead"
+        )
         if not isinstance(expression, str):
             raise TypeError(
                 f"parameter `expression` should be a String, not {type(expression)}"
@@ -83,9 +86,6 @@ class Parentheses(str):
             raise ValueError("Parenthesised expression is not balanced")
 
         self._parentheses: str = Parentheses.to_parentheses(expression)
-        raise NotImplementedError(
-            "This class was not meant to be instantiated. Use Parentheses.validate_and_convert() instead"
-        )
         # print(f"expr = {expression}, par = {self._parentheses}")
         # super().__new__(str, self._parentheses)
         # super().__new__(str, self._parentheses)
