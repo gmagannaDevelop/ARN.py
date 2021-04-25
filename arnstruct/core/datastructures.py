@@ -400,6 +400,10 @@ class Tree(object):
         ]
         return "\n".join(elems)
 
+    def __len__(self):
+        """ Wrapper for self.size """
+        return self.size
+
     def __eq__(self, other):
         if not isinstance(other, Tree):
             raise TypeError(
@@ -424,9 +428,14 @@ class Tree(object):
         return self._root.is_leaf()
 
     @property
-    def root(self):
+    def root(self) -> Node:
         """ Return a reference to the root of the tree. """
         return self._root
+
+    @property
+    def size(self) -> int:
+        """ Return the number of nodes of the tree """
+        return self._count_depth_first_transversal()
 
     # TODO : find a utility for this or remove it
     def _breath_first_transversal(self):
@@ -525,3 +534,18 @@ class Tree(object):
                 else:
                     self.__elements.append(")")
                     pairs_stack.pop()
+
+    def _count_depth_first_transversal(
+        self,
+        node: Optional[Node] = None,
+    ) -> int:
+        """Perform a depth-first transversal to count the number of nodes in the tree."""
+
+        node: Node = node or self.root
+
+        if not node.is_leaf():
+            return 1 + sum(
+                self._count_depth_first_transversal(child) for child in node.children
+            )
+        else:
+            return 1
