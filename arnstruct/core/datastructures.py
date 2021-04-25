@@ -388,16 +388,27 @@ class Tree(object):
         return cls(stack.peek())
 
     def __init__(self, root: Node):
-        self._root = root
+        self._root: Node = root
+        self.__uuid: str = hex(id(self))
         self.__elements: List[str] = []
 
     def __repr__(self) -> str:
         elems: List[str] = [
-            "RNA Secondary Structure tree",
+            f"RNA Secondary Structure Tree at {self.__uuid}",
             f" Structure : {self.to_parentheses()}",
             f" Sequence  : {self.to_sequence()}",
         ]
         return "\n".join(elems)
+
+    def __eq__(self, other):
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            _seq_id: bool = self.to_sequence() == other.to_sequence()
+            _str_id: bool = self.to_parentheses() == other.to_parentheses()
+            return _seq_id and _str_id
 
     def is_empty(self):
         """Return True if there are no nodes other than the root
