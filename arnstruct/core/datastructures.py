@@ -209,6 +209,14 @@ class Node(object):
     def __str__(self):
         return f"{self.content}"
 
+    def __eq__(self, other: "Node"):
+        if not isinstance(other, Node):
+            raise TypeError(
+                f"Cannot compare instance of Node to instance of {type(other)}"
+            )
+        else:
+            return self.content == other.content
+
     # TODO : remove as it is not used ?
     def __len__(self):
         _iter_types = [Queue, Stack, list]
@@ -382,6 +390,14 @@ class Tree(object):
     def __init__(self, root: Node):
         self._root = root
         self.__elements: List[str] = []
+
+    def __repr__(self) -> str:
+        elems: List[str] = [
+            "RNA Secondary Structure tree",
+            f" Structure : {self.to_parentheses()}",
+            f" Sequence  : {self.to_sequence()}",
+        ]
+        return "\n".join(elems)
 
     def is_empty(self):
         """Return True if there are no nodes other than the root
