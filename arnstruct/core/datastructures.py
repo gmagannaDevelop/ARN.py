@@ -410,6 +410,14 @@ class Tree(object):
             _str_id: bool = self.to_parentheses() == other.to_parentheses()
             return _seq_id and _str_id
 
+    def __contains__(self, other):
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            return other.to_parentheses() in self.to_parentheses()
+
     def is_empty(self):
         """Return True if there are no nodes other than the root
         i.e. the root is a leaf (has no children)."""
