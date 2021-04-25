@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from arnstruct.core.datastructures import Node, Queue, Stack, Tree
 from arnstruct.parsing.parseRfam import check_token_balance
 from arnstruct.core.dynamicprog import RNAStruct
@@ -24,11 +25,8 @@ filled_tree = Tree.from_parentheses_and_sequence(wuss_literal, rna_seq)
 
 other_wuss: str = "::::::::::::<<<<<<........________.......................................................................>>>>>>..<<<-<<<_____.......>>>->>>.<<<.______.._>>>::::"
 
-dyn_prog_test = RNAStruct("AUGCCGCUGCAUGA")
+dyn_prog_test = RNAStruct("CCGGCAUG")
 
-for i in range(len(dyn_prog_test)):
-    for j in range(len(dyn_prog_test)):
-        print(dyn_prog_test._gamma(i, j))
 
 # breadth_first = filled_tree.breath_first_transversal()
 
