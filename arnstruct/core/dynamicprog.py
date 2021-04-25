@@ -2,6 +2,7 @@ import numpy as np
 from .sequence import Sequence
 
 
+# TODO : integrate these methods to Sequence
 class RNAStruct(Sequence):
     """ Calculate secondary structure by dynamic programming """
 
