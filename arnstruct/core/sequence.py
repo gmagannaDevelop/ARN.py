@@ -67,7 +67,7 @@ class Sequence(object):
             return Sequence("".join(self.__complement(base) for base in self._sequence))
         elif isinstance(other, str):  # complement of a string, if valid
             if Sequence.is_valid_sequence(other):
-                return "".join(self.__complement(base) for base in other)
+                return "".join(self.__complement(base) for base in other.upper())
             else:
                 raise ValueError(
                     f"Sequence contains invalid characters. Valid characters are {Sequence.__Alphabet}"

@@ -194,6 +194,30 @@ class Node(object):
             ]
         )
 
+    @staticmethod
+    def _maximum_common_subtree(reference: "Node", other: "Node") -> "Node":
+        """ """
+        if not (isinstance(other, Node) and isinstance(reference, Node)):
+            raise TypeError(
+                "Cannot calculate a maximum common subtree on objects whose type is not Node"
+            )
+
+        max_subtree: "Node" = Node()
+        current_subtree: "Node" = Node()
+
+        if reference == other:
+            max_subtree = reference
+
+        if reference.children:
+            for child in reference.children:
+                if not other.is_leaf():
+                    for brether in other.children:
+                        current_subtree = Node._maximum_common_subtree(child, brether)
+                    if len(max_subtree) < len(current_subtree):
+                        max_subtree = current_subtree
+
+        return copy.deepcopy(max_subtree)
+
     def __init__(self, content: Optional[Any] = None):
         self.__uuid = hex(id(self))
         self._content: Any = content
@@ -209,23 +233,45 @@ class Node(object):
     def __str__(self):
         return f"{self.content}"
 
-    # TODO : remove as it is not used ?
-    def __len__(self):
-        _iter_types = [Queue, Stack, list]
-        # check if we can get the length of contents :
-        _is_iterable = any(isinstance(self._content, i) for i in _iter_types)
-        if self._content is None:
-            # if there is no content
-            return 0
-        elif _is_iterable:
-            # if content is an iterable collection
-            return len(self._content)
+    def __eq__(self, other: "Node"):
+        """ """
+        return self.equals(other)
+
+    def equals(self, other: "Node"):
+        """ """
+        if not isinstance(other, Node):
+            raise TypeError(
+                f"Cannot compare instance of Node to instance of {type(other)}"
+            )
+        if self.children and other.children:
+            for child, brether in zip(self.children, other.children):
+                if self.degree == other.degree and child.equals(brether):
+                    return True
+                else:
+                    return False
+        elif self.is_leaf() and other.is_leaf():
+            return True
         else:
-            # if content is a single element
+            return False
+
+    def __count_depth_first_transversal(self, node: Optional["Node"] = None) -> int:
+        """Perform a depth-first transversal to count the number of nodes in the tree."""
+
+        node: Node = node or self
+
+        if not node.is_leaf():
+            return 1 + sum(
+                self.__count_depth_first_transversal(child) for child in node.children
+            )
+        else:
             return 1
 
+    def __len__(self):
+        """ Wrapper for Node._Node__count_depth_first_transversal() """
+        return self.__count_depth_first_transversal()
+
     @property
-    def id(self):
+    def id(self) -> str:
         """ A unique representation of the node, given by its memory address."""
         return self.__uuid
 
@@ -240,19 +286,27 @@ class Node(object):
         return self._siblings.copy()
 
     @property
-    def first_child(self):
+    def first_child(self) -> Union[None, "Node"]:
         """First child of node, according to the chained
         representation described in the main docstring."""
         return self._first_child
 
     @property
-    def children(self):
+    def children(self) -> Union[None, List["Node"]]:
         """Return a list of the first child and all of its siblings,
         which together represent all the children of the node."""
         if self.first_child is not None:
             return [self.first_child] + self.first_child.siblings
         else:
             return None
+
+    @property
+    def degree(self) -> int:
+        """ Return the number of children of the node """
+        if self.first_child is not None:
+            return len(self.children)
+        else:
+            return 0
 
     def add_child(self, child: "Node") -> NoReturn:
         """Add a child to a node. Given the chained implementation this
@@ -318,37 +372,10 @@ class Tree(object):
     """
 
     @classmethod
-    def from_parentheses(cls, parentheses: str):
-        """ """
-        stack: Stack = Stack()
-        root: Node = Node()
-
-        stack.push(root)
-
-        for char in parentheses:
-            if char == "(":
-                new_node = Node()
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
-                stack.push(new_node)
-            elif char == "-":
-                new_node = Node()
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
-            else:
-                stack.pop()
-
-        return cls(stack.peek())
-
-    @classmethod
     def from_parentheses_and_sequence(cls, parentheses: str, sequence: str):
         """ """
         stack: Stack = Stack()
         root: Node = Node()
-        # stack to keep trace of opening and closing braces
-        balance_stack: Stack = Stack()
 
         stack.push(root)
 
@@ -357,20 +384,13 @@ class Tree(object):
             if char == "(":
                 new_node = Node(Queue())
                 new_node.content.enqueue(base)
-                # to be able to add the corresponding matching base
-                balance_stack.push(new_node)
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
+                stack.peek().add_child(new_node)
                 stack.push(new_node)
             elif char == "-":
                 new_node = Node(base)
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
+                stack.peek().add_child(new_node)
             elif char == ")":
-                balance_stack.peek().content.enqueue(base)
-                balance_stack.pop()
+                stack.peek().content.enqueue(base)
                 stack.pop()
             else:
                 raise ValueError(
@@ -380,18 +400,66 @@ class Tree(object):
         return cls(stack.peek())
 
     def __init__(self, root: Node):
-        self._root = root
+        self._root: Node = root
+        self.__uuid: str = hex(id(self))
         self.__elements: List[str] = []
+
+    def __repr__(self) -> str:
+        elems: List[str] = [
+            f"RNA Secondary Structure Tree at {self.__uuid}",
+            f" Structure : {self.to_parentheses()}",
+            f" Sequence  : {self.to_sequence()}",
+        ]
+        return "\n".join(elems)
+
+    def __len__(self):
+        """ Wrapper for self.size """
+        return self.size
+
+    def __eq__(self, other):
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            # _seq_id: bool = self.to_sequence() == other.to_sequence()
+            # _str_id: bool = self.to_parentheses() == other.to_parentheses()
+            return self.root == other.root
+
+    # def __div__(self, other):
+    #    return self.maximum_common_subtree(self, other)
+
+    def __contains__(self, other):
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            return other.to_parentheses() in self.to_parentheses()
 
     def is_empty(self):
         """Return True if there are no nodes other than the root
         i.e. the root is a leaf (has no children)."""
         return self._root.is_leaf()
 
+    def equals(self, other: "Tree"):
+        """ """
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            return self.root == other.root
+
     @property
-    def root(self):
+    def root(self) -> Node:
         """ Return a reference to the root of the tree. """
         return self._root
+
+    @property
+    def size(self) -> int:
+        """ Return the number of nodes of the tree """
+        return self._count_depth_first_transversal()
 
     # TODO : find a utility for this or remove it
     def _breath_first_transversal(self):
@@ -405,15 +473,30 @@ class Tree(object):
 
         while not queue.is_empty():
             current: Queue = queue.dequeue()
-            print(current.content, end="")
-            if current.children is not None:
-                level += 1
+            yield current
+            # print(current.content, end="")
+            if current.children:
+                # level += 1
                 for child in current.children:
                     queue.enqueue(child)
-                    level_queue.enqueue(child)
+                    # level_queue.enqueue(child)
 
-                tree_map.update({level: level_queue.items})
-                level_queue.empty()
+                # tree_map.update({level: level_queue.items})
+                # level_queue.empty()
+
+    def maximum_common_subtree(self, other: "Tree") -> "Tree":
+        """ Wrapper for Node._maximum_common_subtree() """
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot calculate a maximum commun subtree respect to an instance of {type(other)}"
+            )
+        direct = Tree(self.root._maximum_common_subtree(self.root, other.root))
+        inverse = Tree(self.root._maximum_common_subtree(other.root, self.root))
+
+        if len(direct) >= len(inverse):
+            return direct
+        else:
+            return inverse
 
     def __reset_elements(self):
         """Private method to be called before and after a call to
@@ -490,3 +573,18 @@ class Tree(object):
                 else:
                     self.__elements.append(")")
                     pairs_stack.pop()
+
+    def _count_depth_first_transversal(
+        self,
+        node: Optional[Node] = None,
+    ) -> int:
+        """Perform a depth-first transversal to count the number of nodes in the tree."""
+
+        node: Node = node or self.root
+
+        if not node.is_leaf():
+            return 1 + sum(
+                self._count_depth_first_transversal(child) for child in node.children
+            )
+        else:
+            return 1

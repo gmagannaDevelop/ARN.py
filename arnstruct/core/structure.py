@@ -8,8 +8,9 @@ class Structure(object):
 
     __Character: Set[str] = set("(-)")
 
-    __complements: Dict[str, str] = {"(": ")", ")" : "(", "-" : "-"}
+    __complements: Dict[str, str] = {"(": ")", ")": "(", "-": "-"}
 
+    @staticmethod
     def is_valid_structure(struct: str) -> bool:
         """ Determine if input `struct` is a valid ARN structure """
         return set(struct).issubset(Structure.__Character)
@@ -40,10 +41,13 @@ class Structure(object):
             raise TypeError(
                 f"argument other is of type {type(other)}. Please provide a string or Sequence"
             )
-        l_s_motif=[]
+        l_s_motif = []
 
         for i in range(len(self._struct)):
-            if self._struct[i:i+th] in other and len(self._struct[i:i+th]) == th:
-                l_s_motif.append(self._struct[i:i+th])
+            if (
+                self._struct[i : i + th] in other
+                and len(self._struct[i : i + th]) == th
+            ):
+                l_s_motif.append(self._struct[i : i + th])
 
         return l_s_motif

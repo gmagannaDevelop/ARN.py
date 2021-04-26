@@ -10,6 +10,7 @@ pandas = "^1.2.3"
 biopython = "^1.78"
 PySimpleGUI = "^4.39.1"
 tk = "^0.1.0"
+numpy = "^1.20.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
