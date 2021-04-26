@@ -233,7 +233,7 @@ class Node(object):
             return 1
 
     @property
-    def id(self):
+    def id(self) -> str:
         """ A unique representation of the node, given by its memory address."""
         return self.__uuid
 
@@ -248,19 +248,27 @@ class Node(object):
         return self._siblings.copy()
 
     @property
-    def first_child(self):
+    def first_child(self) -> Union[None, "Node"]:
         """First child of node, according to the chained
         representation described in the main docstring."""
         return self._first_child
 
     @property
-    def children(self):
+    def children(self) -> Union[None, List["Node"]]:
         """Return a list of the first child and all of its siblings,
         which together represent all the children of the node."""
         if self.first_child is not None:
             return [self.first_child] + self.first_child.siblings
         else:
             return None
+
+    @property
+    def degree(self) -> int:
+        """ Return the number of children of the node """
+        if self.first_child is not None:
+            return len(self.children)
+        else:
+            return 0
 
     def add_child(self, child: "Node") -> NoReturn:
         """Add a child to a node. Given the chained implementation this
