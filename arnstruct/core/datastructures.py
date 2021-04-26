@@ -372,31 +372,6 @@ class Tree(object):
     """
 
     @classmethod
-    def from_parentheses(cls, parentheses: str):
-        """ """
-        stack: Stack = Stack()
-        root: Node = Node()
-
-        stack.push(root)
-
-        for char in parentheses:
-            if char == "(":
-                new_node = Node()
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
-                stack.push(new_node)
-            elif char == "-":
-                new_node = Node()
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
-            else:
-                stack.pop()
-
-        return cls(stack.peek())
-
-    @classmethod
     def from_parentheses_and_sequence(cls, parentheses: str, sequence: str):
         """ """
         stack: Stack = Stack()
