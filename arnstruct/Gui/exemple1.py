@@ -32,10 +32,10 @@ frame_motif = [
 ]
 
 frame_res = [
-    [sg.Text("Structure commune ")]
+    [sg.Text("Structure commune")]
 ]
 layout = [  [sg.Frame('ARN 1', frame_seq1), sg.VerticalSeparator(),sg.Frame('ARN 2', frame_seq2)],
-            [sg.Frame('Recherche de motifs communs', frame_motif)], [sg.Button('Comparer les motifs de séquence', key='-COMPAREMOTIF-')]
+            [sg.Frame('Recherche de motifs communs', frame_motif)], [sg.Button('Comparer', key='-COMPAREMOTIF-')]
             ]
 
 layout_error = [
