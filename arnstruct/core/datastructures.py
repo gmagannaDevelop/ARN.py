@@ -194,6 +194,30 @@ class Node(object):
             ]
         )
 
+    @staticmethod
+    def _maximum_common_subtree(reference: "Node", other: "Node") -> "Node":
+        """ """
+        if not (isinstance(other, Node) and isinstance(reference, Node)):
+            raise TypeError(
+                "Cannot calculate a maximum common subtree on objects whose type is not Node"
+            )
+
+        max_subtree: "Node" = Node()
+        current_subtree: "Node" = Node()
+
+        if reference == other:
+            max_subtree = reference
+
+        if reference.children:
+            for child in reference.children:
+                if not other.is_leaf():
+                    for brether in other.children:
+                        current_subtree = Node._maximum_common_subtree(child, brether)
+                    if len(max_subtree) < len(current_subtree):
+                        max_subtree = current_subtree
+
+        return copy.deepcopy(max_subtree)
+
     def __init__(self, content: Optional[Any] = None):
         self.__uuid = hex(id(self))
         self._content: Any = content
@@ -210,27 +234,41 @@ class Node(object):
         return f"{self.content}"
 
     def __eq__(self, other: "Node"):
+        """ """
+        return self.equals(other)
+
+    def equals(self, other: "Node"):
+        """ """
         if not isinstance(other, Node):
             raise TypeError(
                 f"Cannot compare instance of Node to instance of {type(other)}"
             )
+        if self.children and other.children:
+            for child, brether in zip(self.children, other.children):
+                if self.degree == other.degree and child.equals(brether):
+                    return True
+                else:
+                    return False
+        elif self.is_leaf() and other.is_leaf():
+            return True
         else:
-            return self.content == other.content
+            return False
 
-    # TODO : remove as it is not used ?
-    def __len__(self):
-        _iter_types = [Queue, Stack, list]
-        # check if we can get the length of contents :
-        _is_iterable = any(isinstance(self._content, i) for i in _iter_types)
-        if self._content is None:
-            # if there is no content
-            return 0
-        elif _is_iterable:
-            # if content is an iterable collection
-            return len(self._content)
+    def __count_depth_first_transversal(self, node: Optional["Node"] = None) -> int:
+        """Perform a depth-first transversal to count the number of nodes in the tree."""
+
+        node: Node = node or self
+
+        if not node.is_leaf():
+            return 1 + sum(
+                self.__count_depth_first_transversal(child) for child in node.children
+            )
         else:
-            # if content is a single element
             return 1
+
+    def __len__(self):
+        """ Wrapper for Node._Node__count_depth_first_transversal() """
+        return self.__count_depth_first_transversal()
 
     @property
     def id(self) -> str:
@@ -418,9 +456,12 @@ class Tree(object):
                 f"Cannot compare instance of Tree to instance of {type(other)}"
             )
         else:
-            _seq_id: bool = self.to_sequence() == other.to_sequence()
-            _str_id: bool = self.to_parentheses() == other.to_parentheses()
-            return _seq_id and _str_id
+            # _seq_id: bool = self.to_sequence() == other.to_sequence()
+            # _str_id: bool = self.to_parentheses() == other.to_parentheses()
+            return self.root == other.root
+
+    def __div__(self, other):
+        return self.maximum_common_subtree(self, other)
 
     def __contains__(self, other):
         if not isinstance(other, Tree):
@@ -434,6 +475,15 @@ class Tree(object):
         """Return True if there are no nodes other than the root
         i.e. the root is a leaf (has no children)."""
         return self._root.is_leaf()
+
+    def equals(self, other: "Tree"):
+        """ """
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot compare instance of Tree to instance of {type(other)}"
+            )
+        else:
+            return self.root == other.root
 
     @property
     def root(self) -> Node:
@@ -457,15 +507,30 @@ class Tree(object):
 
         while not queue.is_empty():
             current: Queue = queue.dequeue()
-            print(current.content, end="")
-            if current.children is not None:
-                level += 1
+            yield current
+            # print(current.content, end="")
+            if current.children:
+                # level += 1
                 for child in current.children:
                     queue.enqueue(child)
-                    level_queue.enqueue(child)
+                    # level_queue.enqueue(child)
 
-                tree_map.update({level: level_queue.items})
-                level_queue.empty()
+                # tree_map.update({level: level_queue.items})
+                # level_queue.empty()
+
+    def maximum_common_subtree(self, other: "Tree") -> "Tree":
+        """ Wrapper for Node._maximum_common_subtree() """
+        if not isinstance(other, Tree):
+            raise TypeError(
+                f"Cannot calculate a maximum commun subtree respect to an instance of {type(other)}"
+            )
+        direct = Tree(self.root._maximum_common_subtree(self.root, other.root))
+        inverse = Tree(self.root._maximum_common_subtree(other.root, self.root))
+
+        if len(direct) >= len(inverse):
+            return direct
+        else:
+            return inverse
 
     def __reset_elements(self):
         """Private method to be called before and after a call to
