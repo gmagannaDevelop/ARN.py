@@ -401,8 +401,6 @@ class Tree(object):
         """ """
         stack: Stack = Stack()
         root: Node = Node()
-        # stack to keep trace of opening and closing braces
-        balance_stack: Stack = Stack()
 
         stack.push(root)
 
@@ -411,20 +409,13 @@ class Tree(object):
             if char == "(":
                 new_node = Node(Queue())
                 new_node.content.enqueue(base)
-                # to be able to add the corresponding matching base
-                balance_stack.push(new_node)
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
+                stack.peek().add_child(new_node)
                 stack.push(new_node)
             elif char == "-":
                 new_node = Node(base)
-                parent = stack.pop()
-                parent.add_child(new_node)
-                stack.push(parent)
+                stack.peek().add_child(new_node)
             elif char == ")":
-                balance_stack.peek().content.enqueue(base)
-                balance_stack.pop()
+                stack.peek().content.enqueue(base)
                 stack.pop()
             else:
                 raise ValueError(
@@ -460,8 +451,8 @@ class Tree(object):
             # _str_id: bool = self.to_parentheses() == other.to_parentheses()
             return self.root == other.root
 
-    def __div__(self, other):
-        return self.maximum_common_subtree(self, other)
+    # def __div__(self, other):
+    #    return self.maximum_common_subtree(self, other)
 
     def __contains__(self, other):
         if not isinstance(other, Tree):

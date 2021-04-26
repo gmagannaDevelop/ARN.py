@@ -16,6 +16,7 @@ for i in range(10):
 
 
 wuss_literal = "--(((-((-----)))))-(-(----)--)-"
+random_rna = lambda x: "".join((random.choice("AUCG") for i in range(len(x))))
 rna_seq = "".join((random.choice("AUCG") for i in range(len(wuss_literal))))
 paired = wuss_literal + "\n" + rna_seq
 
