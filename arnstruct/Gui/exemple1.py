@@ -1,8 +1,8 @@
 
 import PySimpleGUI as sg
 from arnstruct.core.sequence import Sequence
-from arnstruct.core.structure import Structure
-
+from arnstruct.core.parentheses import Parentheses
+from arnstruct.core.datastructures import Tree
 
 sg.theme('DarkTeal2')   # Add a touch of color
 
@@ -35,7 +35,8 @@ frame_res = [
     [sg.Text("Structure commune")]
 ]
 layout = [  [sg.Frame('ARN 1', frame_seq1), sg.VerticalSeparator(),sg.Frame('ARN 2', frame_seq2)],
-            [sg.Frame('Recherche de motifs communs', frame_motif)], [sg.Button('Comparer', key='-COMPAREMOTIF-')]
+            [sg.Frame('Recherche de motifs communs', frame_motif)], [sg.Button('Comparer les motifs de séquence', key='-COMPAREMOTIF-')],
+            [sg.Button('Comparer les structures', key='-COMPARESTRUCT-')]
             ]
 
 layout_error = [
@@ -58,26 +59,33 @@ while True:
             seq1 = Sequence(values['-SEQNT1-'])
             seq2 = Sequence(values['-SEQNT2-'])
 
-            struct1 = Structure(values["-STRUCT1-"])
-            struct2 = Structure(values["-STRUCT2-"])
-
             th_str = values['MOTIFSIZE']
             th_seq = int(th_str)
             motifs_seq = seq1.motif_search(seq2, th_seq)
             print("Motifs communs de taille %d" % th_seq, motifs_seq)
 
-            th_struct = int(th_str)
-            motifs_struct = struct1.motif_search_struct(struct2, th_struct)
-            print("Structure commune de taille %d" % th_struct, motifs_struct)
 
         except ValueError:
 
            sg.popup("Veuillez vérifier le format des entrées")
 
 
-    if event == '-SUB_SEQ2-':
-        print('submit2')
-         #Quand on clique sur 'Comparer'
+    if event == '-COMPARESTRUCT-':
+        try:
+            seq1 = Sequence(values['-SEQNT1-'])
+            seq2 = Sequence(values['-SEQNT2-'])
+            struct1 = Parentheses.validate_and_convert(values["-STRUCT1-"])
+            struct2 = Parentheses.validate_and_convert(values["-STRUCT2-"])
+
+            tree1 = Tree.from_parentheses_and_sequence(struct1, seq1)
+            tree2 = Tree.from_parentheses_and_sequence(struct2, seq2)
+
+            max_tree = tree1.maximum_common_subtree(tree2)
+            print(tree1, tree2, max_tree, sep="\n")
+
+        except ValueError:
+            sg.popup("Veuillez vérifier le format des entrées")
+        #Quand on clique sur 'Comparer'
         # maintenant tu peux deja faire :
         # my_seq = Sequence(string)
 
