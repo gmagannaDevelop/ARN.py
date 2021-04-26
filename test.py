@@ -3,6 +3,7 @@ import numpy as np
 from arnstruct.core.datastructures import Node, Queue, Stack, Tree
 from arnstruct.parsing.parseRfam import check_token_balance
 from arnstruct.core.dynamicprog import RNAStruct
+from arnstruct.core.parentheses import Parentheses
 
 node = Node("A")
 

@@ -33,7 +33,7 @@ class Parentheses(str):
                 except IndexError:
                     return False
 
-        return True if s.is_empty() else False
+        return s.is_empty()
 
     @staticmethod
     def to_parentheses(
@@ -69,7 +69,9 @@ class Parentheses(str):
 
     @staticmethod
     def validate_and_convert(expr: str) -> str:
-        if not Parentheses.check_token_balance(expression):
+        if not isinstance(expr, str):
+            raise TypeError(f"parameter `expr` should be a String, not {type(expr)}")
+        if not Parentheses.check_token_balance(expr):
             raise ValueError("Parenthesised expression is not balanced")
         else:
             return Parentheses.to_parentheses(expr)
@@ -78,14 +80,14 @@ class Parentheses(str):
         raise NotImplementedError(
             "This class was not meant to be instantiated. Use Parentheses.validate_and_convert() instead"
         )
-        if not isinstance(expression, str):
-            raise TypeError(
-                f"parameter `expression` should be a String, not {type(expression)}"
-            )
-        if not Parentheses.check_token_balance(expression):
-            raise ValueError("Parenthesised expression is not balanced")
+        # if not isinstance(expression, str):
+        #    raise TypeError(
+        #        f"parameter `expression` should be a String, not {type(expression)}"
+        #    )
+        # if not Parentheses.check_token_balance(expression):
+        #    raise ValueError("Parenthesised expression is not balanced")
 
-        self._parentheses: str = Parentheses.to_parentheses(expression)
+        # self._parentheses: str = Parentheses.to_parentheses(expression)
         # print(f"expr = {expression}, par = {self._parentheses}")
         # super().__new__(str, self._parentheses)
         # super().__new__(str, self._parentheses)
