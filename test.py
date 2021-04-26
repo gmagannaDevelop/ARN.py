@@ -38,10 +38,12 @@ print(sub_tree, "\n")
 print(filled_tree, "\n")
 print(f"sub_tree in tree : {sub_tree in filled_tree}")
 
-# breadth_first = filled_tree.breath_first_transversal()
 
-# rebuilt_seq_ls = []
-# for i in sorted(breadth_first.keys()):
-#    rebuilt_seq_ls += breadth_first[i]
-#
-# rebuilt_rna = "".join(elem.content for elem in rebuilt_seq_ls if elem)
+sub_test = filled_tree.root.children[2]
+sub_root = Node()
+sub_root.add_child(sub_test)
+
+sub_tree = Tree(sub_root)
+
+print("test maximum common subtree :")
+print(filled_tree.maximum_common_subtree(sub_tree))
