@@ -24,7 +24,7 @@ wuss2 = "-(-(----)--)-"
 seq2 = "".join((random.choice("AUCG") for i in range(len(wuss2))))
 print(paired)
 
-void_tree = Tree.from_parentheses(wuss_literal)
+# void_tree = Tree.from_parentheses(wuss_literal)
 filled_tree = Tree.from_parentheses_and_sequence(wuss_literal, rna_seq)
 filled_tree2 = Tree.from_parentheses_and_sequence(wuss_literal, rna_seq)
 sub_tree = Tree.from_parentheses_and_sequence(wuss2, seq2)
